@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
+import { Ionicons } from '@expo/vector-icons';
 import { Body, Button, Heading, Screen } from '@/components/ui';
 import { colors, fonts, radii, spacing, typeScale } from '@/lib/theme';
 import { useSession } from '@/lib/auth';
@@ -10,6 +11,7 @@ export default function SignIn() {
   const { signIn } = useSession();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -50,16 +52,29 @@ export default function SignIn() {
 
         <View style={styles.field}>
           <Body style={styles.fieldLabel}>Password</Body>
-          <TextInput
-            style={styles.input}
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            autoComplete="password"
-            placeholder="••••••••"
-            placeholderTextColor={colors.textMuted}
-            onSubmitEditing={onSubmit}
-          />
+          <View style={styles.passwordRow}>
+            <TextInput
+              style={[styles.input, styles.passwordInput]}
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={!showPassword}
+              autoComplete="password"
+              placeholder="••••••••"
+              placeholderTextColor={colors.textMuted}
+              onSubmitEditing={onSubmit}
+            />
+            <Pressable
+              onPress={() => setShowPassword((v) => !v)}
+              style={styles.passwordToggle}
+              hitSlop={8}
+            >
+              <Ionicons
+                name={showPassword ? 'eye-off' : 'eye'}
+                size={20}
+                color={colors.textMuted}
+              />
+            </Pressable>
+          </View>
         </View>
 
         {error ? (
@@ -124,5 +139,8 @@ const styles = StyleSheet.create({
     color: colors.text,
     backgroundColor: colors.surface,
   },
+  passwordRow: { position: 'relative', justifyContent: 'center' },
+  passwordInput: { paddingRight: spacing.xl + spacing.md },
+  passwordToggle: { position: 'absolute', right: spacing.md, padding: spacing.xs },
   error: { color: colors.danger, textAlign: 'center' },
 });
