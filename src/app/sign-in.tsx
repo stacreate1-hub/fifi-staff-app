@@ -12,6 +12,7 @@ export default function SignIn() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -19,7 +20,7 @@ export default function SignIn() {
     setError(null);
     setLoading(true);
     try {
-      await signIn(email.trim(), password);
+      await signIn(email.trim(), password, rememberMe);
     } catch (e) {
       setError(e instanceof ApiError ? e.message : 'Something went wrong. Check your connection and try again.');
     } finally {
@@ -76,6 +77,19 @@ export default function SignIn() {
             </Pressable>
           </View>
         </View>
+
+        <Pressable
+          style={styles.rememberRow}
+          onPress={() => setRememberMe((v) => !v)}
+          hitSlop={8}
+        >
+          <Ionicons
+            name={rememberMe ? 'checkbox' : 'square-outline'}
+            size={20}
+            color={rememberMe ? colors.accent : colors.textMuted}
+          />
+          <Body style={styles.rememberLabel}>Remember me</Body>
+        </Pressable>
 
         {error ? (
           <Body style={styles.error}>{error}</Body>
@@ -142,5 +156,7 @@ const styles = StyleSheet.create({
   passwordRow: { position: 'relative', justifyContent: 'center' },
   passwordInput: { paddingRight: spacing.xl + spacing.md },
   passwordToggle: { position: 'absolute', right: spacing.md, padding: spacing.xs },
+  rememberRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
+  rememberLabel: { fontSize: typeScale.small },
   error: { color: colors.danger, textAlign: 'center' },
 });

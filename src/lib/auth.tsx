@@ -22,7 +22,7 @@ interface SessionContextValue {
   token: string | null;
   user: SessionUser | null;
   capabilities: Capabilities | null;
-  signIn: (email: string, password: string) => Promise<void>;
+  signIn: (email: string, password: string, remember?: boolean) => Promise<void>;
   signOut: () => Promise<void>;
   /** Marks the session invalid (e.g. after a 401 from any API call) without needing credentials. */
   invalidate: () => Promise<void>;
@@ -68,12 +68,14 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     })();
   }, []);
 
-  const signIn = useCallback(async (email: string, password: string) => {
+  const signIn = useCallback(async (email: string, password: string, remember: boolean = true) => {
     const res = await api.login(email, password);
-    await Promise.all([
-      saveToken(res.token),
-      AsyncStorage.setItem(SESSION_CACHE_KEY, JSON.stringify({ user: res.user, capabilities: res.capabilities })),
-    ]);
+    await saveToken(res.token, remember);
+    if (remember) {
+      await AsyncStorage.setItem(SESSION_CACHE_KEY, JSON.stringify({ user: res.user, capabilities: res.capabilities }));
+    } else {
+      await AsyncStorage.removeItem(SESSION_CACHE_KEY);
+    }
     setToken(res.token);
     setUser(res.user);
     setCapabilities(res.capabilities);
