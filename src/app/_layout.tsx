@@ -3,12 +3,17 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useFonts, PlayfairDisplay_600SemiBold, PlayfairDisplay_700Bold } from '@expo-google-fonts/playfair-display';
 import { Montserrat_400Regular, Montserrat_500Medium, Montserrat_600SemiBold } from '@expo-google-fonts/montserrat';
+import { Platform } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
+import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { SessionProvider, isAdminPersona, useSession } from '@/lib/auth';
 import { AppQueryProvider } from '@/lib/queryClient';
 
 SplashScreen.preventAutoHideAsync();
+
+// react-native-keyboard-controller doesn't support web; only wrap native platforms.
+const KeyboardRootProvider = Platform.OS === 'web' ? React.Fragment : KeyboardProvider;
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
@@ -20,14 +25,16 @@ export default function RootLayout() {
   });
 
   return (
-    <SafeAreaProvider>
-      <SessionProvider>
-        <AppQueryProvider>
-          <StatusBar style="dark" />
-          <RootNavigator fontsLoaded={fontsLoaded} />
-        </AppQueryProvider>
-      </SessionProvider>
-    </SafeAreaProvider>
+    <KeyboardRootProvider>
+      <SafeAreaProvider>
+        <SessionProvider>
+          <AppQueryProvider>
+            <StatusBar style="dark" />
+            <RootNavigator fontsLoaded={fontsLoaded} />
+          </AppQueryProvider>
+        </SessionProvider>
+      </SafeAreaProvider>
+    </KeyboardRootProvider>
   );
 }
 

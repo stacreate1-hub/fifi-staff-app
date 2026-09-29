@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { Body, Button, Heading, Screen } from '@/components/ui';
 import { colors, fonts, radii, spacing, typeScale } from '@/lib/theme';
 import { useSession } from '@/lib/auth';
@@ -24,62 +25,79 @@ export default function SignIn() {
     }
   };
 
+  const form = (
+    <View style={styles.content}>
+      <View style={styles.brand}>
+        <Body style={styles.eyebrow}>FIFI CAPTURE STUDIO</Body>
+        <Heading style={styles.title}>Staff Portal</Heading>
+        <Body muted style={styles.subtitle}>Sign in with your studio account</Body>
+      </View>
+
+      <View style={styles.form}>
+        <View style={styles.field}>
+          <Body style={styles.fieldLabel}>Email</Body>
+          <TextInput
+            style={styles.input}
+            value={email}
+            onChangeText={setEmail}
+            autoCapitalize="none"
+            autoComplete="email"
+            keyboardType="email-address"
+            placeholder="you@fificapturestudio.com"
+            placeholderTextColor={colors.textMuted}
+          />
+        </View>
+
+        <View style={styles.field}>
+          <Body style={styles.fieldLabel}>Password</Body>
+          <TextInput
+            style={styles.input}
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            autoComplete="password"
+            placeholder="••••••••"
+            placeholderTextColor={colors.textMuted}
+            onSubmitEditing={onSubmit}
+          />
+        </View>
+
+        {error ? (
+          <Body style={styles.error}>{error}</Body>
+        ) : null}
+
+        <Button title="Sign in" onPress={onSubmit} loading={loading} disabled={!email || !password} />
+      </View>
+    </View>
+  );
+
+  if (Platform.OS === 'web') {
+    return (
+      <Screen>
+        <KeyboardAvoidingView style={styles.flex} behavior={undefined}>
+          <ScrollView
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            {form}
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </Screen>
+    );
+  }
+
   return (
     <Screen>
-      <KeyboardAvoidingView
+      <KeyboardAwareScrollView
         style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+        bottomOffset={40}
       >
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
-          <View style={styles.content}>
-            <View style={styles.brand}>
-              <Body style={styles.eyebrow}>FIFI CAPTURE STUDIO</Body>
-              <Heading style={styles.title}>Staff Portal</Heading>
-              <Body muted style={styles.subtitle}>Sign in with your studio account</Body>
-            </View>
-
-            <View style={styles.form}>
-              <View style={styles.field}>
-                <Body style={styles.fieldLabel}>Email</Body>
-                <TextInput
-                  style={styles.input}
-                  value={email}
-                  onChangeText={setEmail}
-                  autoCapitalize="none"
-                  autoComplete="email"
-                  keyboardType="email-address"
-                  placeholder="you@fificapturestudio.com"
-                  placeholderTextColor={colors.textMuted}
-                />
-              </View>
-
-              <View style={styles.field}>
-                <Body style={styles.fieldLabel}>Password</Body>
-                <TextInput
-                  style={styles.input}
-                  value={password}
-                  onChangeText={setPassword}
-                  secureTextEntry
-                  autoComplete="password"
-                  placeholder="••••••••"
-                  placeholderTextColor={colors.textMuted}
-                  onSubmitEditing={onSubmit}
-                />
-              </View>
-
-              {error ? (
-                <Body style={styles.error}>{error}</Body>
-              ) : null}
-
-              <Button title="Sign in" onPress={onSubmit} loading={loading} disabled={!email || !password} />
-            </View>
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+        {form}
+      </KeyboardAwareScrollView>
     </Screen>
   );
 }
