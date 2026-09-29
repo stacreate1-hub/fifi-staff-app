@@ -40,6 +40,12 @@
         "projectId": "ec4fc1ab-2442-423d-bc9f-060a14b08cd4"
       }
     },
-    "owner": "stacreates-team"
+    "owner": "stacreates-team",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/ec4fc1ab-2442-423d-bc9f-060a14b08cd4"
+    }
   }
 }
