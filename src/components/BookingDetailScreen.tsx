@@ -132,9 +132,9 @@ export function BookingDetailScreen({ bookingId }: { bookingId: string }) {
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <View style={styles.rowBetween}>
-      <Body muted>{label}</Body>
-      <Body>{value}</Body>
+    <View style={styles.detailRow}>
+      <Body muted style={styles.detailLabel}>{label}</Body>
+      <Body style={styles.detailValue}>{value}</Body>
     </View>
   );
 }
@@ -142,6 +142,9 @@ function Row({ label, value }: { label: string; value: string }) {
 const styles = StyleSheet.create({
   content: { padding: spacing.lg, gap: spacing.lg },
   rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  detailRow: { gap: 2 },
+  detailLabel: { flexShrink: 0 },
+  detailValue: { minWidth: 0, flexShrink: 1 },
   rowGap: { flexDirection: 'row', gap: spacing.sm, alignItems: 'center', flexWrap: 'wrap' },
   statusWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   amountInput: {
