@@ -2,7 +2,17 @@ import React, { useState } from 'react';
 import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { Body, Button, Card, Heading, Label, LoadingState, Screen, StatusBadge } from '@/components/ui';
 import { colors, radii, spacing } from '@/lib/theme';
-import { useBooking, usePayments, useRecordPayment, useRecordRefund, useUpdateStatus } from '@/hooks/useApi';
+import {
+  useAssignPhotographer,
+  useBooking,
+  useMessages,
+  usePayments,
+  usePhotographers,
+  useRecordPayment,
+  useRecordRefund,
+  useSendMessage,
+  useUpdateStatus,
+} from '@/hooks/useApi';
 import { isAdminPersona, useSession } from '@/lib/auth';
 import type { BookingStatus } from '@/lib/api';
 
@@ -16,9 +26,14 @@ export function BookingDetailScreen({ bookingId }: { bookingId: string }) {
   const recordPayment = useRecordPayment(bookingId);
   const recordRefund = useRecordRefund(bookingId);
   const updateStatus = useUpdateStatus(bookingId);
+  const { data: photographers } = usePhotographers();
+  const assignPhotographer = useAssignPhotographer(bookingId);
+  const { data: messages } = useMessages(bookingId);
+  const sendMessage = useSendMessage(bookingId);
 
   const [amount, setAmount] = useState('');
   const [mode, setMode] = useState<'payment' | 'refund' | null>(null);
+  const [messageBody, setMessageBody] = useState('');
 
   if (isLoading || !booking) return <LoadingState />;
 
@@ -30,6 +45,12 @@ export function BookingDetailScreen({ bookingId }: { bookingId: string }) {
     } else if (mode === 'refund') {
       recordRefund.mutate({ amount: value, method: 'Recorded via app' }, { onSuccess: () => { setAmount(''); setMode(null); } });
     }
+  };
+
+  const submitMessage = () => {
+    const body = messageBody.trim();
+    if (!body) return;
+    sendMessage.mutate({ body }, { onSuccess: () => setMessageBody('') });
   };
 
   return (
@@ -52,6 +73,31 @@ export function BookingDetailScreen({ bookingId }: { bookingId: string }) {
           <Row label="Total" value={`£${Number(booking.total_amount).toFixed(2)}`} />
           <Row label="Balance due" value={`£${Number(booking.balance_due).toFixed(2)}`} />
         </Card>
+
+        {capabilities?.manage_clients ? (
+          <Card style={{ gap: spacing.sm }}>
+            <Label>Photographer</Label>
+            <View style={styles.rowGap}>
+              <Button
+                title="Unassigned"
+                variant={!booking.assigned_photographer ? 'primary' : 'secondary'}
+                onPress={() => assignPhotographer.mutate(null)}
+                loading={assignPhotographer.isPending}
+                disabled={!booking.assigned_photographer}
+              />
+              {(photographers ?? []).map((p) => (
+                <Button
+                  key={p.id}
+                  title={p.label}
+                  variant={booking.assigned_photographer === p.id ? 'primary' : 'secondary'}
+                  onPress={() => assignPhotographer.mutate(p.id)}
+                  loading={assignPhotographer.isPending}
+                  disabled={booking.assigned_photographer === p.id}
+                />
+              ))}
+            </View>
+          </Card>
+        ) : null}
 
         {capabilities?.manage_payments || capabilities?.manage_refunds ? (
           <Card style={{ gap: spacing.sm }}>
@@ -131,6 +177,36 @@ export function BookingDetailScreen({ bookingId }: { bookingId: string }) {
             ))
           )}
         </View>
+
+        {capabilities?.edit_bookings ? (
+          <View>
+            <Label style={{ marginBottom: spacing.sm }}>Messages</Label>
+            {!messages || messages.length === 0 ? (
+              <Body muted>No messages yet.</Body>
+            ) : (
+              messages.map((m, i) => (
+                <Card key={i} style={styles.messageRow}>
+                  <View style={styles.rowBetween}>
+                    <Label>{'staff' === m.from ? m.from_name : booking.client.name}{'meeting_note' === m.type ? ' · Meeting note' : ''}</Label>
+                    <Body muted style={styles.messageTime}>{new Date(m.sent_at).toLocaleDateString()}</Body>
+                  </View>
+                  <Body>{m.body}</Body>
+                </Card>
+              ))
+            )}
+            <View style={styles.rowGap}>
+              <TextInput
+                style={[styles.amountInput, styles.messageInput]}
+                placeholder="Write a message…"
+                placeholderTextColor={colors.textMuted}
+                value={messageBody}
+                onChangeText={setMessageBody}
+                multiline
+              />
+              <Button title="Send" onPress={submitMessage} loading={sendMessage.isPending} disabled={!messageBody.trim()} />
+            </View>
+          </View>
+        ) : null}
       </ScrollView>
     </Screen>
   );
@@ -164,4 +240,7 @@ const styles = StyleSheet.create({
     minWidth: 100,
   },
   paymentRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: spacing.sm },
+  messageRow: { gap: spacing.xs, marginBottom: spacing.sm },
+  messageTime: { fontSize: 12 },
+  messageInput: { flex: 1, minHeight: 44 },
 });

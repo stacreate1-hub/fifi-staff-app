@@ -1,18 +1,13 @@
 import React from 'react';
-import { Screen, EmptyState } from '@/components/ui';
+import { BookingsListScreen } from '@/components/BookingsListScreen';
 
-/**
- * The site has a "Fifi Booking Messaging" snippet, but its functionality
- * was never wrapped into fifi-portal-api-v2.php for Phase 1 — there is no
- * GET/POST /messages route to call yet. Placeholder rather than fake data.
- */
+/** Messaging is per-booking (see BookingDetailScreen's Messages section) — this tab is a shortcut into that same list, scoped to the photographer's own bookings same as My Bookings. */
 export default function Messages() {
   return (
-    <Screen>
-      <EmptyState
-        title="Messages coming soon"
-        message="Booking messaging isn't part of the Phase 1 API yet — it needs its own route added first."
-      />
-    </Screen>
+    <BookingsListScreen
+      detailRoute={(id) => `/(photographer)/my-bookings/${id}`}
+      emptyTitle="No bookings yet"
+      emptyMessage="Messages live on each booking once you're assigned one."
+    />
   );
 }

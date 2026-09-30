@@ -27,6 +27,10 @@ export default function FinanceTabsLayout() {
         name="bookings"
         options={{ title: 'Bookings', tabBarIcon: ({ color, size }) => <Ionicons name="calendar-outline" color={color} size={size} /> }}
       />
+      <Tabs.Screen
+        name="tasks"
+        options={{ title: 'Tasks', tabBarIcon: ({ color, size }) => <Ionicons name="checkbox-outline" color={color} size={size} /> }}
+      />
     </Tabs>
   );
 }

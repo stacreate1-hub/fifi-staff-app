@@ -108,6 +108,43 @@ export interface Enquiry {
   created_at: number;
 }
 
+export interface Photographer {
+  id: number;
+  label: string;
+}
+
+export type StaffRole = 'fifi_staff' | 'fifi_office_admin' | 'fifi_finance';
+
+export interface StaffAccount {
+  id: number;
+  name: string;
+  email: string;
+  role: StaffRole;
+}
+
+export type MessageType = 'message' | 'meeting_note';
+
+export interface Message {
+  from: 'client' | 'staff';
+  from_user_id: number;
+  from_name: string;
+  body: string;
+  type: MessageType;
+  sent_at: string;
+}
+
+export interface Task {
+  booking_id: string;
+  client_name: string;
+  event_date: string;
+  contract: string;
+  picu_proofs: string;
+  final_gallery: string;
+  meeting: string;
+  payment: string;
+  testimonial: string;
+}
+
 export interface ReportsResponse {
   period: 'cal' | 'tax';
   year: number;
@@ -215,4 +252,31 @@ export const api = {
 
   getReports: (token: string, period: 'calendar' | 'tax_year' = 'calendar', year?: number) =>
     request<ReportsResponse>(`/reports?period=${period}${year ? `&year=${year}` : ''}`, { token }),
+
+  getPhotographers: (token: string) => request<Photographer[]>('/photographers', { token }),
+
+  assignPhotographer: (token: string, bookingId: string, photographerId: number | null) =>
+    request<{ ok: boolean; booking: Booking }>(`/bookings/${bookingId}/assign`, {
+      method: 'PATCH',
+      token,
+      body: { photographer_id: photographerId ?? 0 },
+    }),
+
+  getStaffAccounts: (token: string) => request<StaffAccount[]>('/staff-accounts', { token }),
+
+  createStaffAccount: (token: string, input: { name: string; email: string; role: StaffRole }) =>
+    request<StaffAccount>('/staff-accounts', { method: 'POST', token, body: input }),
+
+  updateStaffAccountRole: (token: string, id: number, role: StaffRole) =>
+    request<StaffAccount>(`/staff-accounts/${id}`, { method: 'PATCH', token, body: { role } }),
+
+  deleteStaffAccount: (token: string, id: number) =>
+    request<{ ok: boolean }>(`/staff-accounts/${id}`, { method: 'DELETE', token }),
+
+  getMessages: (token: string, bookingId: string) => request<Message[]>(`/bookings/${bookingId}/messages`, { token }),
+
+  sendMessage: (token: string, bookingId: string, body: string, type: MessageType = 'message') =>
+    request<Message[]>(`/bookings/${bookingId}/messages`, { method: 'POST', token, body: { body, type } }),
+
+  getTasks: (token: string) => request<Task[]>('/tasks', { token }),
 };

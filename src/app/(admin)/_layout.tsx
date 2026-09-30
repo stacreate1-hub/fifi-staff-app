@@ -26,6 +26,10 @@ export default function AdminTabsLayout() {
         options={{ title: 'Bookings', tabBarIcon: ({ color, size }) => <Ionicons name="calendar-outline" color={color} size={size} /> }}
       />
       <Tabs.Screen
+        name="tasks"
+        options={{ title: 'Tasks', tabBarIcon: ({ color, size }) => <Ionicons name="checkbox-outline" color={color} size={size} /> }}
+      />
+      <Tabs.Screen
         name="enquiries"
         options={{ title: 'Enquiries', tabBarIcon: ({ color, size }) => <Ionicons name="chatbubble-ellipses-outline" color={color} size={size} /> }}
       />
