@@ -2,8 +2,11 @@ import React from 'react';
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, fonts } from '@/lib/theme';
+import { useSession } from '@/lib/auth';
 
 export default function AdminTabsLayout() {
+  const { capabilities } = useSession();
+
   return (
     <Tabs
       screenOptions={{
@@ -26,9 +29,17 @@ export default function AdminTabsLayout() {
         name="enquiries"
         options={{ title: 'Enquiries', tabBarIcon: ({ color, size }) => <Ionicons name="chatbubble-ellipses-outline" color={color} size={size} /> }}
       />
+      {/* Fifi Office Admin has manage_clients (this whole group's guard) but not
+          view_reports — only Administrator gets this tab. href: null is the
+          documented way to hide a tab whose route file still exists; simply
+          omitting the <Tabs.Screen> leaves the route half-registered. */}
       <Tabs.Screen
         name="reports"
-        options={{ title: 'Reports', tabBarIcon: ({ color, size }) => <Ionicons name="stats-chart-outline" color={color} size={size} /> }}
+        options={{
+          title: 'Reports',
+          href: capabilities?.view_reports ? undefined : null,
+          tabBarIcon: ({ color, size }) => <Ionicons name="stats-chart-outline" color={color} size={size} />,
+        }}
       />
       <Tabs.Screen
         name="staff"

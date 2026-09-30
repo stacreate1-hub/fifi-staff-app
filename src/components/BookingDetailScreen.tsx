@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { Body, Button, Card, Heading, Label, LoadingState, Screen, StatusBadge } from '@/components/ui';
 import { colors, radii, spacing } from '@/lib/theme';
 import { useBooking, usePayments, useRecordPayment, useRecordRefund, useUpdateStatus } from '@/hooks/useApi';
-import { useSession } from '@/lib/auth';
+import { isAdminPersona, useSession } from '@/lib/auth';
 import type { BookingStatus } from '@/lib/api';
 
 const STATUS_OPTIONS: BookingStatus[] = ['Awaiting Payment', 'Booking Confirmed', 'Payment Arrangement', 'Refunded', 'Cancelled'];
@@ -92,7 +92,13 @@ export function BookingDetailScreen({ bookingId }: { bookingId: string }) {
           </Card>
         ) : null}
 
-        {capabilities?.edit_bookings ? (
+        {/*
+          edit_bookings also gates gallery upload for photographers (kept
+          intentionally), so it alone can't gate status-change here — that
+          control is restricted to the admin persona (Administrator / Fifi
+          Office Admin) on top of the capability check.
+        */}
+        {isAdminPersona(capabilities) && capabilities?.edit_bookings ? (
           <Card style={{ gap: spacing.sm }}>
             <Label>Change status</Label>
             <View style={styles.statusWrap}>

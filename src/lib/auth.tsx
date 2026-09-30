@@ -97,9 +97,18 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-/** True for anyone whose token proves it (Administrator or Fifi Office Admin) — the CEO/Admin nav persona. */
+/**
+ * True for Administrator or Fifi Office Admin — the CEO/Admin nav persona.
+ * manage_clients (not view_all_bookings) is the discriminator: Fifi Finance
+ * also has view_all_bookings, but never manage_clients.
+ */
 export function isAdminPersona(capabilities: Capabilities | null): boolean {
-  return !!capabilities?.view_all_bookings;
+  return !!capabilities?.manage_clients;
+}
+
+/** True for Fifi Finance — has view_reports but, unlike Administrator, never manage_clients. */
+export function isFinancePersona(capabilities: Capabilities | null): boolean {
+  return !!capabilities?.view_reports && !capabilities?.manage_clients;
 }
 
 /** Re-throws non-auth errors; on a 401 from the API, signs the session out so the login screen reappears. */

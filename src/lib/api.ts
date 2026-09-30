@@ -30,6 +30,8 @@ export interface Capabilities {
   view_activity_log: boolean;
   manage_settings: boolean;
   view_all_bookings: boolean;
+  view_reports: boolean;
+  view_payments: boolean;
 }
 
 export interface LoginResponse {

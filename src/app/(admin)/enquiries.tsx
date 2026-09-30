@@ -21,10 +21,10 @@ export default function Enquiries() {
   const { data: enquiries, isLoading } = useEnquiries(stage);
   const updateEnquiry = useUpdateEnquiry();
 
-  // /enquiries is admin-only server-side (true Administrator, not Office
-  // Admin — see fifi-portal-api-v2.php). manage_settings is the reliable
-  // client-side proxy for that in this role system.
-  if (!capabilities?.manage_settings) {
+  // /enquiries is gated server-side to fifi_manage_clients — both
+  // Administrator and Fifi Office Admin have it. This check is a
+  // defensive fallback; anyone else never sees this tab at all.
+  if (!capabilities?.manage_clients) {
     return (
       <Screen>
         <EmptyState

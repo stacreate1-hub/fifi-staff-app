@@ -7,7 +7,7 @@ import { Platform } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
-import { SessionProvider, isAdminPersona, useSession } from '@/lib/auth';
+import { SessionProvider, isAdminPersona, isFinancePersona, useSession } from '@/lib/auth';
 import { AppQueryProvider } from '@/lib/queryClient';
 
 SplashScreen.preventAutoHideAsync();
@@ -49,6 +49,7 @@ function RootNavigator({ fontsLoaded }: { fontsLoaded: boolean }) {
   if (!ready) return null;
 
   const isAdmin = isAdminPersona(capabilities);
+  const isFinance = isFinancePersona(capabilities);
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
@@ -60,7 +61,11 @@ function RootNavigator({ fontsLoaded }: { fontsLoaded: boolean }) {
         <Stack.Screen name="(admin)" />
       </Stack.Protected>
 
-      <Stack.Protected guard={!!token && !isAdmin}>
+      <Stack.Protected guard={!!token && isFinance}>
+        <Stack.Screen name="(finance)" />
+      </Stack.Protected>
+
+      <Stack.Protected guard={!!token && !isAdmin && !isFinance}>
         <Stack.Screen name="(photographer)" />
       </Stack.Protected>
     </Stack>

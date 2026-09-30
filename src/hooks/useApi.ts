@@ -119,10 +119,9 @@ export function useReports(period: 'calendar' | 'tax_year' = 'calendar', year?: 
   return useQuery({
     queryKey: ['reports', period, year ?? 'current'],
     queryFn: () => api.getReports(requireToken(token), period, year),
-    // manage_settings is a reliable proxy for "true Administrator" in this
-    // role system (only Administrator gets it — Fifi Office Admin never
-    // does), and /reports is gated server-side to manage_options only. No
-    // point firing a query we already know will 403.
-    enabled: !!token && !!capabilities?.manage_settings,
+    // /reports is gated server-side to fifi_view_reports (Administrator and
+    // Fifi Finance; not Fifi Office Admin or Fifi Staff). No point firing a
+    // query we already know will 403.
+    enabled: !!token && !!capabilities?.view_reports,
   });
 }
